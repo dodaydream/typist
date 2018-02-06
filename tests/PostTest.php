@@ -44,16 +44,23 @@ class PostTest extends TestCase
              ->seeJson(['deleted' => true]);
     }
 
+    public function testGetTrashedPostById()
+    {
+        $this->json('GET', 'admin/post/trashed/1', ['data' => json_encode(['page' => 1])])
+             ->seeJson(['title' => 'TestModified']);
+    }
+
+    // TODO
     public function testGetTrashedPosts()
     {
         $this->json('GET', 'admin/posts/trashed', ['data' => json_encode(['page' => 1])])
              ->seeJson(['current_page' => 1]);
     }
 
-    public function testRecoverPost()
+    public function testRestorePost()
     {
         $this->json('PUT', 'admin/post/trashed/1')
-             ->seeJson(['recovered' => true]);
+             ->seeJson(['restored' => true]);
     }
 
 }

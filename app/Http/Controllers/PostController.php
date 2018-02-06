@@ -60,9 +60,9 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
-    public function recoverPost($id)
+    public function restorePost($id)
     {
-        $post = Posts::onlyTrashed()->where('id', $id)->get();
+        $post = Posts::onlyTrashed()->where('id', $id);
         if ($post) {
             $post->restore();
             return response()->json(['restored' => true]);
@@ -70,8 +70,18 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
+    // TODO
     public function getTrashedPosts()
     {
         $posts = Posts::onlyTrashed()->get();
+    }
+
+    public function getTrashedPostById($id)
+    {
+        $post = Posts::onlyTrashed()->where('id', $id)->get();
+        if ($post) {
+            return response()->json($post);
+        }
+        abort(404, 'Post Not Found');
     }
 }

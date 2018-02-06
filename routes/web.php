@@ -22,7 +22,7 @@ $router->group(['prefix' => 'admin'], function () use ($router) {
         $router->put('/{id:[0-9]+}', 'PostController@updatePost');
         $router->delete('/{id:[0-9]+}', 'PostController@deletePost');
         $router->get('/trashed/{id:[0-9]+}', 'PostController@getTrashedPostById');
-        $router->put('/trashed/{id:[0-9]+}', 'PostController@recoverPost');
+        $router->put('/trashed/{id:[0-9]+}', 'PostController@restorePost');
     });
     $router->get('/posts/trashed', 'PostController@getTrashedPosts');
 });
