@@ -18,7 +18,7 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         AuthorizationException::class,
-        HttpException::class,
+        // HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
     ];
@@ -45,10 +45,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        $code = $e->getCode() == 0 ? 500 : $e->getCode();
-        $message = ["file" => $e->getFile(),
-                "line" => $e->getLine(),
-                "msg"  => $e->getMessage()];
-        return response()->json(["code" => $code, "msg" => $message]);
+        $code = $e->getCode() ? 500 : $e->getStatusCode();
+        if (env('APP_DEBUG')) {
+            $debug = ["file" => $e->getFile(), "line" => $e->getLine()];
+            return response()->json(["code" => $code, "msg" => $e->getMessage(), "debug" => $debug]);
+        }
+        return response()->json(["code" => $code, "msg" => $e->getMessage()]);
     }
 }

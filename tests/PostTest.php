@@ -23,7 +23,8 @@ class PostTest extends TestCase
 
     public function testCreatePost()
     {
-        $this->json('POST', 'admin/post', ['data' => json_encode(['title' => 'Test', 'content' => 'Lorem Ipsum', 'user_id' => 1])])
+        $data = ['title' => 'Test', 'content' => 'Lorem Ipsum', 'user_id' => 1, 'category_id' => 1];
+        $this->json('POST', 'admin/post', ['data' => json_encode($data)])
              ->seeJsonEquals([
                 'created' => true
              ]);
@@ -34,7 +35,7 @@ class PostTest extends TestCase
         $this->json('PUT', 'admin/post/1', ['data' => json_encode(['title' => 'TestModified', 'content' => 'Lorem Ipsum', 'user_id' => 1])])
         ->seeJson(['updated' => true ]);
 
-        $this->json('PUT', 'admin/post/1', ['data' => json_encode(['title' => 'TestModified', 'content' => 'Lorem Ipsum', 'user_id' => 1])])
+        $this->json('PUT', 'admin/post/666', ['data' => json_encode(['title' => 'TestModified', 'content' => 'Lorem Ipsum', 'user_id' => 1])])
         ->seeJson(['updated' => true ]);
     }
 

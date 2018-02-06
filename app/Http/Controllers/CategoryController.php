@@ -9,13 +9,13 @@ class CategoryController extends Controller
     public function getCategories()
     {
         $categories = Categories::all();
-        return response()->json($categories);
+        return response()->json($categories->toArray());
     }
 
     public function createCategory(Request $request)
     {
         $category = json_decode($request->data, true);
-        if (Categories::create($post))
+        if (Categories::create($category))
             return response()->json(['created' => true]);
     }
 
@@ -38,7 +38,7 @@ class CategoryController extends Controller
         if ($category) {
             $posts = $category->hasManyPosts()->get();
             foreach ($posts as $post) {
-                $post->id = -1;
+                $post->category_id = -1;
                 $post->save();
             }
             $category->delete();

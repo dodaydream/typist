@@ -6,13 +6,10 @@ use App\Posts;
 
 class CategoryTest extends TestCase
 {
-
-    public function testGetCategories()
-    {
-        $this->json('GET', '/categories', ['data' => json_encode(['page' => 1])])
-             ->seeJson(['current_page' => 1]);
-    }
-
+    /**
+     * @group category
+     * Test create category
+     */
     public function testCreateCategory()
     {
         $data = [
@@ -22,15 +19,36 @@ class CategoryTest extends TestCase
         $this->json('POST', 'admin/category', ['data' => json_encode($data)])
              ->seeJson(['created' => true]);
     }
-    //
-    // public function testUpdateCategory()
-    // {
-    //
-    // }
-    //
-    // public function testDeleteCategory()
-    // {
-    //
-    // }
+
+    /**
+     * @group category
+     * Test get categories
+     */
+    public function testGetCategories()
+    {
+        $this->json('GET', '/categories')
+             ->seeJson(['id' => 1]);
+    }
+
+    /**
+     * @group category
+     * Test get categories
+     */
+    public function testUpdateCategory()
+    {
+        $data = ['name' => 'TestModified', 'description' => 'Lorem Ipsum'];
+        $this->json('PUT', 'admin/category/1', ['data' => json_encode($data)])
+        ->seeJson(['updated' => true]);
+    }
+
+    /**
+     * @group category
+     * Test get categories
+     */
+    public function testDeleteCategory()
+    {
+        $this->json('DELETE', 'admin/category/1')
+             ->seeJson(['deleted' => true]);
+    }
 
 }

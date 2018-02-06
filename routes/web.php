@@ -14,6 +14,8 @@
 // Publically Visible
 $router->get('/post/{id:[0-9]+}', 'PostController@getPostById');
 $router->get('/posts', 'PostController@getPosts');
+// TODO
+$router->get('posts/category/id', 'PostController@getPostsByCategoryId');
 $router->get('/categories', 'CategoryController@getCategories');
 
 // Only visible by admin
@@ -33,7 +35,7 @@ $router->group(['prefix' => 'admin'], function () use ($router) {
 
     $router->group(['prefix' => 'category'], function () use ($router) {
         $router->post('/', 'CategoryController@createCategory');
-        $router->get('/{id:[0-9]+}', 'CategoryController@updateCategory');
+        $router->put('/{id:[0-9]+}', 'CategoryController@updateCategory');
         $router->delete('/{id:[0-9]+}', 'CategoryController@deleteCategory');
     });
 
