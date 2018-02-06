@@ -14,9 +14,14 @@
 // Publically Visible
 $router->get('/post/{id:[0-9]+}', 'PostController@getPostById');
 $router->get('/posts', 'PostController@getPosts');
+$router->get('/categories', 'CategoryController@getCategories');
 
 // Only visible by admin
 $router->group(['prefix' => 'admin'], function () use ($router) {
+    $router->group(['prefix' => 'user'], function () use ($router) {
+
+    });
+
     $router->group(['prefix' => 'post'], function () use ($router) {
         $router->post('/', 'PostController@createPost');
         $router->put('/{id:[0-9]+}', 'PostController@updatePost');
@@ -25,4 +30,14 @@ $router->group(['prefix' => 'admin'], function () use ($router) {
         $router->put('/trashed/{id:[0-9]+}', 'PostController@restorePost');
     });
     $router->get('/posts/trashed', 'PostController@getTrashedPosts');
+
+    $router->group(['prefix' => 'category'], function () use ($router) {
+        $router->post('/', 'CategoryController@createCategory');
+        $router->get('/{id:[0-9]+}', 'CategoryController@updateCategory');
+        $router->delete('/{id:[0-9]+}', 'CategoryController@deleteCategory');
+    });
+
+    $router->group(['prefix' => 'comment'], function () use ($router) {
+
+    });
 });

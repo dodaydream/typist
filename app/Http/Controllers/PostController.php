@@ -21,7 +21,7 @@ class PostController extends Controller
         return Posts::paginate();
     }
 
-    public function getPostById($id)
+    public function getPostById(int $id)
     {
         $post = Posts::find($id);
         if ($post) {
@@ -37,7 +37,7 @@ class PostController extends Controller
             return response()->json(['created' => true]);
     }
 
-    public function updatePost(Request $request, $id)
+    public function updatePost(Request $request, int $id)
     {
         $newPost = json_decode($request->data, true);
         $post = Posts::find($id);
@@ -50,7 +50,7 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
-    public function deletePost($id)
+    public function deletePost(int $id)
     {
         $post = Posts::find($id);
         if ($post) {
@@ -60,7 +60,7 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
-    public function restorePost($id)
+    public function restorePost(int $id)
     {
         $post = Posts::onlyTrashed()->where('id', $id);
         if ($post) {
@@ -76,7 +76,7 @@ class PostController extends Controller
         $posts = Posts::onlyTrashed()->get();
     }
 
-    public function getTrashedPostById($id)
+    public function getTrashedPostById(int $id)
     {
         $post = Posts::onlyTrashed()->where('id', $id)->get();
         if ($post) {
