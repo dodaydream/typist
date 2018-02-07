@@ -14,14 +14,16 @@
 // Publically Visible
 $router->get('/post/{id:[0-9]+}', 'PostController@getPostById');
 $router->get('/posts/{page:[0-9]+}', 'PostController@getPosts');
-// TODO
-$router->get('posts/category/id', 'PostController@getPostsByCategoryId');
+$router->get('/posts/category/{categoryId:[0-9]+}/{page:[0-9]+}', 'PostController@getPostsByCategoryId');
 $router->get('/categories', 'CategoryController@getCategories');
 
 // Only visible by admin
 $router->group(['prefix' => 'admin'], function () use ($router) {
     $router->group(['prefix' => 'user'], function () use ($router) {
-
+        $router->put('/{id:[0-9]+}', 'UserController@updateUser');
+        $router->post('/', 'UserController@createUser');
+        $router->get('/', 'UserController@getUsers');
+        $router->delete('/{id:[0-9]+}', 'UserController@deleteUser');
     });
 
     $router->group(['prefix' => 'post'], function () use ($router) {

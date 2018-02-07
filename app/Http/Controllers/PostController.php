@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Posts;
+use App\Categories;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -19,9 +20,17 @@ class PostController extends Controller
     public function getPosts(int $page)
     {
         $posts = Posts::skip(($page - 1) * 10)->take(10)->get();
-        if (empty($posts))
+        return response()->json(['page' => $page, 'posts' => $posts]);
+    }
+
+    public function getPostsByCategoryId(int $categoryId, int $page)
+    {
+        $posts = Categories::find($categoryId);
+        if ($posts) {
+            $posts = $posts->hasManyPosts()->skip(($page - 1) * 10)->take(10)->get();
             return response()->json(['page' => $page, 'posts' => $posts]);
-        abort(404, 'Page Doesn\'t exist');
+        }
+        abort(404, 'Category not exist');
     }
 
     public function getPostById(int $id)
