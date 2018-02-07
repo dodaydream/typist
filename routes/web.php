@@ -13,7 +13,7 @@
 
 // Publically Visible
 $router->get('/post/{id:[0-9]+}', 'PostController@getPostById');
-$router->get('/posts', 'PostController@getPosts');
+$router->get('/posts/{page:[0-9]+}', 'PostController@getPosts');
 // TODO
 $router->get('posts/category/id', 'PostController@getPostsByCategoryId');
 $router->get('/categories', 'CategoryController@getCategories');
@@ -31,7 +31,7 @@ $router->group(['prefix' => 'admin'], function () use ($router) {
         $router->get('/trashed/{id:[0-9]+}', 'PostController@getTrashedPostById');
         $router->put('/trashed/{id:[0-9]+}', 'PostController@restorePost');
     });
-    $router->get('/posts/trashed', 'PostController@getTrashedPosts');
+    $router->get('/posts/trashed/{id:[0-9]+}', 'PostController@getTrashedPosts');
 
     $router->group(['prefix' => 'category'], function () use ($router) {
         $router->post('/', 'CategoryController@createCategory');

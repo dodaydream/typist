@@ -16,9 +16,12 @@ class PostController extends Controller
         //
     }
 
-    public function getPosts()
+    public function getPosts(int $page)
     {
-        return Posts::paginate();
+        $posts = Posts::skip(($page - 1) * 10)->take(10)->get();
+        if (empty($posts))
+            return response()->json(['page' => $page, 'posts' => $posts]);
+        abort(404, 'Page Doesn\'t exist');
     }
 
     public function getPostById(int $id)
@@ -70,10 +73,12 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
-    // TODO
-    public function getTrashedPosts()
+    public function getTrashedPosts(int $page)
     {
-        $posts = Posts::onlyTrashed()->get();
+        $posts = Posts::onlyTrashed()->skip(($page - 1) * 10)->take(10)->get();
+        if (empty($posts))
+            return response()->json(['page' => $page, 'posts' => $posts]);
+        abort(404, 'Page Doesn\'t exist');
     }
 
     public function getTrashedPostById(int $id)
