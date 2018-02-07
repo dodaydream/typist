@@ -48,8 +48,8 @@ class Handler extends ExceptionHandler
         $code = $e->getCode() ? 500 : $e->getStatusCode();
         if (env('APP_DEBUG')) {
             $debug = ["file" => $e->getFile(), "line" => $e->getLine()];
-            return response()->json(["code" => $code, "msg" => $e->getMessage(), "debug" => $debug]);
+            return response()->json(["code" => $code, "msg" => $e->getMessage(), "debug" => $debug], $code);
         }
-        return response()->json(["code" => $code, "msg" => $e->getMessage()]);
+        return response()->json(["code" => $code, "msg" => $e->getMessage()], $code);
     }
 }

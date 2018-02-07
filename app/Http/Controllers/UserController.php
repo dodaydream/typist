@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Users;
+use App\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -22,6 +22,7 @@ class UserController extends Controller
             if(!$user->password) {
                 abort(400, "Password cannot be null");
             }
+            $user->password = Hash::make($user->password);
 
             User::create($user);
         }
@@ -31,12 +32,31 @@ class UserController extends Controller
 
     public function updateUser(Request $request, int $id)
     {
-        // $user = 
+        $user = User::find($id);
+        if ($user) {
+            $newUser = json_decode($request->data, true);
+            $newUser->password = Hash::make($newUser->password);
+            if ($user->update($newUser)) {
+                return response()->json(['updated' => true]);
+            }
+            abort(500, 'User can\'t be updated');
+        }
+        abort(404, 'User not found');
     }
 
     public function deleteUser(int $id)
     {
-
+        $user = User::find($id);
+        if ($user) {
+            $posts = $user->hasManyPosts()->get();
+            foreach ($posts as $post) {
+                $post->user_id = -1;
+                $post->save();
+            }
+            $user->delete();
+            return response()->json(['deleted' => true]);
+        }
+        abort(404, 'User not found');
     }
 
 }

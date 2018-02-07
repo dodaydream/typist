@@ -51,9 +51,9 @@ class PostController extends Controller
 
     public function updatePost(Request $request, int $id)
     {
-        $newPost = json_decode($request->data, true);
         $post = Posts::find($id);
         if ($post){
+            $newPost = json_decode($request->data, true);
             if ($post->update($newPost)) {
                 return response()->json(['updated' => true]);
             }

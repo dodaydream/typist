@@ -17,14 +17,16 @@ $router->get('/posts/{page:[0-9]+}', 'PostController@getPosts');
 $router->get('/posts/category/{categoryId:[0-9]+}/{page:[0-9]+}', 'PostController@getPostsByCategoryId');
 $router->get('/categories', 'CategoryController@getCategories');
 
+$router->post('/token', 'TokenController@getToken');
+
 // Only visible by admin
-$router->group(['prefix' => 'admin'], function () use ($router) {
+$router->group(['prefix' => 'admin', 'middleware' => 'auth'], function () use ($router) {
     $router->group(['prefix' => 'user'], function () use ($router) {
-        $router->put('/{id:[0-9]+}', 'UserController@updateUser');
         $router->post('/', 'UserController@createUser');
-        $router->get('/', 'UserController@getUsers');
+        $router->put('/{id:[0-9]+}', 'UserController@updateUser');
         $router->delete('/{id:[0-9]+}', 'UserController@deleteUser');
     });
+    $router->get('/users', 'UserController@getUsers');
 
     $router->group(['prefix' => 'post'], function () use ($router) {
         $router->post('/', 'PostController@createPost');
