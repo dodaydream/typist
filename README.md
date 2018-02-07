@@ -1,6 +1,6 @@
 # typist
 
-[![Build Status](https://travis-ci.org/dodaydream/typist.svg?branch=master)](https://travis-ci.org/dodaydream/typist)
+[![Build Status](https://travis-ci.org/typistCMS/typist-api.svg?branch=master)](https://travis-ci.org/typistCMS/typist-api)
 
 A Blog API based on Lumen
 
