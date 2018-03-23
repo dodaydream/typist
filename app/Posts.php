@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Posts extends Model
 {
-    use SoftDeletes;
     protected $table = 'posts';
-    protected $fillable = ['title', 'user_id', 'content', 'category_id'];
-    protected $dates = ['deleted_at'];
+    protected $fillable = ['revision_id', 'category_id', 'updated_at'];
+	public $timestamps = false;
+
+	public function revision()
+	{
+		return $this->hasOne('App\Revision');
+	}
 }

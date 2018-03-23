@@ -30,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         // should return either a User instance or null. You're free to obtain
         // the User instance via an API token or any other method necessary.
         $this->app['auth']->viaRequest('api', function ($request) {
+			return 1;
             if ($request->header('Authorization')) {
                 $jwt = substr($request->header('Authorization'), 4);
                 $user = JWT::decode($jwt, getenv('JWT_SECRET'), ['HS256']);

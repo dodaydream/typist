@@ -18,7 +18,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'name', 'password'
+        'name', 'email', 'password', 'description'
     ];
 
     /**
@@ -30,6 +30,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'password',
     ];
 
+	public $timestamps = false;
     public function hasManyPosts()
     {
         return $this->hasMany('App\Posts', 'user_id', 'id');
