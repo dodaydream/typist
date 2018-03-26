@@ -12,14 +12,11 @@ class CategoryController extends Controller
 	 * @Param void
 	 * @return json
 	 */
-    public function getCategories()
+    public function listCategories()
     {
         $categories = Categories::all();
-		$data = [
-			'code' => 200,
-			'data' => $categories->toArray()
-		];
-        return response()->json($data);
+		$resp = $categories->toArray();
+        return response()->json($resp);
     }
 
 	/**
@@ -30,27 +27,31 @@ class CategoryController extends Controller
 	 */
     public function createCategory(Request $request)
     {
-		if (empty($request->name))
+		$category = $request->all();
+		if (!isset($category['name']))
 			abort(400, 'Category name cannot be null');
-		$category = new Categories();
-		$category->name = $request->name;
-		if ($category->save())
-            return response()->json(['code' => 201, 'data' => 'created']);
-    }
+		if ($newCategory = Categories::create($category)) {
+			return response()->json($newCategory);
+		}
+	}
 
     public function updateCategory(Request $request, int $id)
     {
         $category = Categories::find($id);
         if ($category) {
-			$newCategory = $request;
-            if ($category->update($newCategory)) {
-                return response()->json(['updated' => true]);
+			$newCategory = $request->all();
+			if (!isset($newCategory['name']))
+				abort(400, 'Category name cannot be null');
+			$category->name = $newCategory['name'];
+            if ($category->save()) {
+                return response()->json($category);
             }
             abort(500, "The category can't be updated.");
         }
         abort(404, 'Category not found.');
     }
 
+	// TODO
     public function deleteCategory(int $id)
     {
         $category = Categories::find($id);

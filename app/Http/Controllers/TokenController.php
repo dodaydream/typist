@@ -1,24 +1,36 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\User;
+use App\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use \Firebase\JWT\JWT;
 
 class TokenController extends Controller
 {
-    public function getToken(Request $request)
+    public function createToken(Request $request)
     {
-        if ($request->has('name') && $request->has('password'))
-            $user = User::where('name', $request->input('name'))
-                        ->where('password', Hash::make($request->input('password')))->first();
-            if ($user) {
-                $data = [
-                    'uid' => $user->id,
-                    'exp' => time() + getenv('JWT_TIME_ALIVE')
-                ];
-                $token = JWT::encode($data, getenv('JWT_SECRET'));
-            }
+		$req = $request->all();
+		if (!isset($req['password']))
+			abort(400, "Password cannot be null");
+
+        if (isset($req['name']))
+			$user = Users::where('name', $req['name']);
+		else if (isset($req['email']))
+			$user = Users::where('email', $req['email']);
+		else
+			abort(400, "Username / Email cannot be null");
+
+		$user = $user->first();
+		if (Hash::check( (string) $req['password'], $user->password)) {
+            $payload = [
+				'uid' => $user->id,
+                'exp' => time() + getenv('JWT_TIME_ALIVE')
+            ];
+            $token = JWT::encode($payload, getenv('JWT_SECRET'));
+			return response()->json(['token' => $token]);
+        }
+		abort(401, "Invalid credential");
     }
 
     public function refreshToken(Request $request)

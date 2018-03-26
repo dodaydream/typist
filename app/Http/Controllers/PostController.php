@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Posts;
 use App\Categories;
+use App\Revisions;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -23,56 +24,97 @@ class PostController extends Controller
 	 * @param int $page
 	 * @return json
 	 */
-    public function getPosts(int $page)
+    public function listPosts(int $page=1, string $filter=null, int $id=null)
     {
-        $posts = Posts::skip(($page - 1) * 10)->take(10)->get();
-        return response()->json(['code' => 200, 'page' => $page, 'posts' => $posts]);
+		if ($filter == 'category')
+			$posts = Categories::find($id)->posts();
+		else
+			$posts = Posts::skip(($page - 1) * 10)->take(10)->get();
+		$resp = [
+			'page' => $page,
+			'filter_by' => $filter,
+			'filter_id' => $id,
+			'posts' => $posts
+		];
+
+		return response()->json($resp);
     }
 
-	/**
-	 * Get Posts By CategoryId.
-	 *
-	 * @param int $categoryId
-	 * @param int $page
-	 *
-	 * @return json
-	 */
-    public function getPostsByCategoryId(int $categoryId, int $page)
-    {
-        $posts = Categories::find($categoryId);
-        if ($posts) {
-            $posts = $posts->posts()->skip(($page - 1) * 10)->take(10)->get();
-            return response()->json(['code' => 200, 'page' => $page, 'posts' => $posts]);
-        }
-        abort(404, 'Category not exist');
-    }
-
-    public function getPostById(int $id)
+    public function retrivePost(int $id)
     {
         $post = Posts::find($id);
-        if ($post) {
-            return response()->json($post);
-        }
+		if ($post && $post = Self::makePost($post))
+			return response()->json($post);
         abort(404, 'Post Not Found');
     }
 
     public function createPost(Request $request)
     {
-        $post = json_decode($request->data, true);
-        if (Posts::create($post))
+		$post = $request->all();
+		if (!isset($post['title']))
+			abort(400, "Missing title");
+
+		$postData = [
+			'title' => $post['title'],
+			'category_id' => $post['category_id']
+		];
+
+		$revisionData = [
+			'content' => $post['content'],
+			'user_id' => $post['user_id']
+		];
+
+		\DB::transaction(function () use (&$post, &$postData, &$revisionData) {
+			$revision = Revisions::create($revisionData);
+			$postData['revision_id'] = $revision->id;
+			$post['id'] = Posts::create($postData)->id;
+			$revision->post_id = $post['id'];
+			$revision->save();
+		});
+
+		$resp = [
+			'id' => $post['id'],
+			'category_id' => $post['category_id'],
+			'title' => $post['title'],
+			'user_id' => 1,
+			'revision_id' => $postData['revision_id'],
+			'content' => $post['content']
+		];
+
+		return response()->json($resp);
+		if (Posts::create($post))
             return response()->json(['created' => true]);
     }
-
+	// TODO
     public function updatePost(Request $request, int $id)
     {
         $post = Posts::find($id);
         if ($post) {
-			$data = json_decode($response);
-			if ($revision = Revision::create($data)) {
-				$post->revision_id = $revision->id;
+			$req = $request->all();
+			\DB::transaction(function () use (&$post, &$req) {
+				if (isset($req['content']) && $req['content'] != $post->revision->content) {
+					$revision = [
+						'content' => $req['content'],
+						'user_id' => 1,	//	TODO: Will be removed 
+						'post_id' => $post['id']
+					];
+
+					$revision = Revisions::create($revision);
+
+					if ($revision) {
+						$revision_id = $revision->id;
+						$post->revision_id = $revision_id;
+					}
+				}
+
+				if (isset($req['title']))
+					$post->title = $req['title'];
+				if (isset($req['category_id']))
+					$post->category_id = $req['category_id'];
 				$post->save();
-			}
-			return response()->json(['code' => 201, 'msg' => 'Post upgraded']);
+			});
+			print_r($post->revision);
+			return response()->json(Self::makePost($post));
         }
         abort(404, 'Post Not Found');
     }
@@ -82,23 +124,49 @@ class PostController extends Controller
         $post = Posts::find($id);
         if ($post) {
             $post->delete();
-            return response()->json(['deleted' => true]);
-				
+            return response()->json(['status' => 'deleted']);
         }
         abort(404, 'Post Not Found');
     }
 
-    public function restorePost(int $id)
+    public function restoreTrashedPost(int $id)
     {
         $post = Posts::onlyTrashed()->where('id', $id);
         if ($post) {
             $post->restore();
-            return response()->json(['restored' => true]);
+            return response()->json(['status' => 'restored']);
         }
         abort(404, 'Post Not Found');
     }
 
-    public function getTrashedPosts(int $page)
+    public function retriveTrashedPost(int $id)
+    {
+        $post = Posts::onlyTrashed()->where('id', $id)->first();
+        if ($post) {
+            return response()->json(Self::makePost($post));
+        }
+        abort(404, 'Post Not Found');
+    }
+
+	public function deleteTrashedPost(int $id)
+	{
+		$post = Posts::onlyTrashed()->where('id', $id)->first();
+		if ($post) {
+			\DB::transaction(function () use ($post) {
+				$post->revisions()->delete();
+				$post->forceDelete();
+			});
+			return response()->json(['status' => 'Permanately Deleted']);
+		}
+		abort(404, 'Post Not Found');
+	}
+
+	// TODO
+	public function deleteTrashedPosts(string $filter='none', int $id=null)
+	{
+	}
+
+    public function listTrashedPosts(int $page)
     {
         $posts = Posts::onlyTrashed()->skip(($page - 1) * 10)->take(10)->get();
         if (empty($posts))
@@ -106,20 +174,19 @@ class PostController extends Controller
         abort(404, 'Page Doesn\'t exist');
     }
 
-    public function getTrashedPostById(int $id)
-    {
-        $post = Posts::onlyTrashed()->where('id', $id)->get();
+	public static function makePost(Posts $post)
+	{
         if ($post) {
-            return response()->json($post);
+			return [
+				'id' => $post->id,
+				'category_id' => $post->category_id,
+				'category' => $post->category != null ? $post->category->name : null,
+				'title' => $post->title,
+				'last_edit_by' => $post->revision->author->name,
+				'updated_at' => $post->updated_at,
+				'revision_id' => $post->revision_id,
+				'content' => $post->revision->content
+			];
         }
-        abort(404, 'Post Not Found');
-    }
-
-	public function removeTrashedPost(int $id)
-	{
-	}
-
-	public function removeTrashedPosts(int $id)
-	{
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\User;
+use App\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,16 +19,22 @@ class UserController extends Controller
 			if (!isset($user['email']))
 				abort(400, "Email cannot be null");
 
-			if (User::where('name', $user['name'])->count())
+			if (Users::where('name', $user['name'])->count())
 				abort(409, "Username exists");
+			if (Users::where('email', $user['email'])->count())
+				abort(409, "Email already registered");
 
-            $user['password'] = Hash::make($user['password']);
-            $user = User::create($user);
-			$resp = [
+			$user = Users::create([
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'password' => Hash::make($user['password']),
+				'description' => isset($user['description']) ? $user['description'] : null
+			]);
+
+			return response()->json([
 				"id" => $user['id'],
 				"name" => $user['name']
-			];
-			return response()->json($resp, 201);
+			], 201);
         }
 
         abort(400, "Empty request body");
@@ -36,7 +42,7 @@ class UserController extends Controller
 
 	public function retriveUser(int $id)
 	{
-		$user = User::find($id);
+		$user = Users::find($id);
 		if ($user) {
 			return response()->json($user);
 		}
@@ -45,12 +51,22 @@ class UserController extends Controller
 
     public function updateUser(Request $request, int $id)
     {
-        $user = User::find($id);
+        $user = Users::find($id);
         if ($user) {
-            $newUser = json_decode($request->data, true);
-            $newUser->password = Hash::make($newUser->password);
+            $newUser = $request->all();
+			if (isset($newUser['password']))
+				$newUser['password'] = Hash::make($newUser['password']);
             if ($user->update($newUser)) {
-                return response()->json(['updated' => true]);
+				$resp = [
+					"id" => $user['id'],
+					"name" => $user['name'],
+					"email" => $user['email'],
+					"password_updated" => false
+				];
+
+				if (isset($newUser['password']))
+					$resp['password_updated'] = true;
+				return response()->json($resp);
             }
             abort(500, 'User can\'t be updated');
         }
@@ -59,11 +75,11 @@ class UserController extends Controller
 
     public function deleteUser(int $id)
     {
-        $user = User::find($id);
+        $user = Users::find($id);
         if ($user) {
             $posts = $user->hasManyPosts()->get();
             foreach ($posts as $post) {
-                $post->user_id = null;
+                $post['user_id'] = null;
                 $post->save();
             }
             $user->delete();
@@ -74,7 +90,7 @@ class UserController extends Controller
 
     public function listAllUsers()
     {
-        return response()->json(User::all());
+        return response()->json(Users::all());
     }
 
 }

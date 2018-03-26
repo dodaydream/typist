@@ -12,41 +12,37 @@
 */
 
 // Publically Visible
-$router->get('/post/{id:[0-9]+}', 'PostController@getPostById');
-$router->get('/posts/{page:[0-9]+}', 'PostController@getPosts');
-$router->get('/posts/category/{categoryId:[0-9]+}/{page:[0-9]+}', 'PostController@getPostsByCategoryId');
-$router->get('/categories', 'CategoryController@getCategories');
 
 /**
  * Users
  */
-
-// User
-$router->group(['prefix' => 'user'], function () use ($router) {
-	$router->get('/{id:[0-9]+}', 'UserController@retriveUser');
-    $router->put('/{id:[0-9]+}', 'UserController@updateUser');
-    $router->delete('/{id:[0-9]+}', 'UserController@deleteUser');
+$router->group(['middleware' => 'auth'], function () use ($router) {
+	$router->get('users/', 'UserController@listAllUsers');
+	$router->put('user/{id:[0-9]+}', 'UserController@updateUser');
+	$router->delete('user/{id:[0-9]+}', 'UserController@deleteUser');
 });
-// User Collection
-$router->group(['prefix' => 'users'], function () use ($router) {
-    $router->post('/', 'UserController@createUser');
-    $router->get('/', 'UserController@listAllUsers');
-});
-// Token
-$router->post('/token', 'TokenController@getToken');
+$router->get('user/{id:[0-9]+}', 'UserController@retriveUser');
+$router->post('users/', 'UserController@createUser');
+$router->post('user/token', 'TokenController@createToken');
 
 $router->group(['prefix' => 'post'], function () use ($router) {
-    $router->post('/', 'PostController@createPost');
     $router->put('/{id:[0-9]+}', 'PostController@updatePost');
     $router->delete('/{id:[0-9]+}', 'PostController@deletePost');
-    $router->get('/trashed/{id:[0-9]+}', 'PostController@getTrashedPostById');
-    $router->put('/trashed/{id:[0-9]+}', 'PostController@restorePost');
+    $router->get('/trashed/{id:[0-9]+}', 'PostController@retriveTrashedPost');
+    $router->put('/trashed/{id:[0-9]+}', 'PostController@restoreTrashedPost');
+	$router->delete('/trashed/{id:[0-9]+}', 'PostController@deleteTrashedPost');
 });
 
-$router->get('/posts/trashed/{id:[0-9]+}', 'PostController@getTrashedPosts');
+$router->post('posts/', 'PostController@createPost');
+$router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
+$router->get('/posts[/{page:[0-9]+}/filter/{filter}/id/{id}]', 'PostController@listPosts');
 
+$router->get('/posts/trashed/{id:[0-9]+}', 'PostController@listTrashedPosts');
+$router->delete('/posts/trashed[/filter{filter}/id/{id}]', 'PostController@deleteTrashedPosts');
+
+$router->get('/categories', 'CategoryController@listCategories');
+$router->post('/categories', 'CategoryController@createCategory');
 $router->group(['prefix' => 'category'], function () use ($router) {
-    $router->post('/', 'CategoryController@createCategory');
     $router->put('/{id:[0-9]+}', 'CategoryController@updateCategory');
     $router->delete('/{id:[0-9]+}', 'CategoryController@deleteCategory');
 });
