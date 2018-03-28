@@ -95,7 +95,7 @@ class PostController extends Controller
 				if (isset($req['content']) && $req['content'] != $post->revision->content) {
 					$revision = [
 						'content' => $req['content'],
-						'user_id' => 1,	//	TODO: Will be removed 
+						'user_id' => 1,	//	TODO: Will be removed
 						'post_id' => $post['id']
 					];
 
@@ -152,18 +152,37 @@ class PostController extends Controller
 	{
 		$post = Posts::onlyTrashed()->where('id', $id)->first();
 		if ($post) {
-			\DB::transaction(function () use ($post) {
-				$post->revisions()->delete();
-				$post->forceDelete();
-			});
+			Self::deleteRevisions($post);
 			return response()->json(['status' => 'Permanately Deleted']);
 		}
 		abort(404, 'Post Not Found');
 	}
 
+	public static function deleteRevisions(Post $post)
+	{
+		\DB::transaction(function () use ($post) {
+			$post->revisions()->delete();
+			$post->forceDelete();
+		});
+
 	// TODO
 	public function deleteTrashedPosts(string $filter='none', int $id=null)
 	{
+		if ($filter == 'none')
+		{
+			$posts = Posts::onlyTrashed()->forceDelete();
+			foreach ($posts as $post)
+				Self::deleteRevisions($post);	
+			$status = "Posts all cleaned";
+		}
+		else if ($filter == 'category') // TODO
+		{
+		}
+		else {
+			abort(405, 'Illegal Parameter');
+		}
+
+		return response()->json(['status' => $status]);
 	}
 
     public function listTrashedPosts(int $page)

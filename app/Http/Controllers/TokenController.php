@@ -22,7 +22,8 @@ class TokenController extends Controller
 			abort(400, "Username / Email cannot be null");
 
 		$user = $user->first();
-		if (Hash::check( (string) $req['password'], $user->password)) {
+
+		if (isset($user) && Hash::check( (string) $req['password'], $user->password)) {
             $payload = [
 				'uid' => $user->id,
                 'exp' => time() + getenv('JWT_TIME_ALIVE')

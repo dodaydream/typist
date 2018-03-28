@@ -10,3 +10,4 @@ class RevisionController extends Controller
 	public function getRevisionsByPostId(int $post_id)
 	{
 	}
+}
