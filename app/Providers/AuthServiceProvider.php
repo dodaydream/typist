@@ -32,13 +32,17 @@ class AuthServiceProvider extends ServiceProvider
         $this->app['auth']->viaRequest('api', function ($request) {
             if ($request->header('Authorization')) {
                 $key = substr($request->header('Authorization'), 4);
-                $user = JWT::decode($key, getenv('JWT_SECRET'), ['HS256']);
+                try {
+                    $user = JWT::decode($key, getenv('JWT_SECRET'), ['HS256']);
+                } catch (\Firebase\JWT\ExpiredException $e) {
+                    abort(401, 'Invalid Credential');
+                }
                 if (!empty($user) && isset($user->uid)) {
-					$request->request->add(['uid' => $user->uid]);
-                    return Users::find($user->uid);
+                    $request->request->add(['uid' => $user->uid]);
+                    return $user->uid;
                 }
             }
-			abort(401, 'Unauthorized');
+            abort(401, 'Unauthorized');
         });
     }
 }

@@ -17,26 +17,27 @@
  * Users
  */
 $router->group(['middleware' => 'auth'], function () use ($router) {
-	$router->get('users/', 'UserController@listAllUsers');
-	$router->put('user/{id:[0-9]+}', 'UserController@updateUser');
-	$router->delete('user/{id:[0-9]+}', 'UserController@deleteUser');
+    $router->get('users/', 'UserController@listAllUsers');
+    $router->put('user/{id:[0-9]+}', 'UserController@updateUser');
+    $router->delete('user/{id:[0-9]+}', 'UserController@deleteUser');
+    $router->post('posts/', 'PostController@createPost');
 });
 $router->get('user/{id:[0-9]+}', 'UserController@retriveUser');
 $router->post('users/', 'UserController@createUser');
 $router->post('user/token', 'TokenController@createToken');
 
-$router->group(['prefix' => 'post'], function () use ($router) {
+$router->group(['prefix' => 'post', 'middleware' => 'auth'], function () use ($router) {
     $router->put('/{id:[0-9]+}', 'PostController@updatePost');
     $router->delete('/{id:[0-9]+}', 'PostController@deletePost');
     $router->get('/trashed/{id:[0-9]+}', 'PostController@retriveTrashedPost');
     $router->put('/trashed/{id:[0-9]+}', 'PostController@restoreTrashedPost');
-	$router->delete('/trashed/{id:[0-9]+}', 'PostController@deleteTrashedPost');
+    $router->delete('/trashed/{id:[0-9]+}', 'PostController@deleteTrashedPost');
 });
 
-$router->post('posts/', 'PostController@createPost');
 $router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
 $router->get('/posts[/{page:[0-9]+}/filter/{filter}/id/{id}]', 'PostController@listPosts');
-
+$router->get('/post/{id:[0-9]+}/revisions', 'RevisionController@getRevisionsByPostId');
+$router->put('/post/{post_id:[0-9]+}/revision/{rev_id:[0-9]+}', 'RevisionController@rollbackRevision');
 $router->get('/posts/trashed/{id:[0-9]+}', 'PostController@listTrashedPosts');
 $router->delete('/posts/trashed[/filter{filter}/id/{id}]', 'PostController@deleteTrashedPosts');
 
