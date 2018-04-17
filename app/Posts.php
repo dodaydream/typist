@@ -11,6 +11,7 @@ class Posts extends Model
     protected $table = 'posts';
     protected $fillable = ['title', 'revision_id', 'category_id', 'updated_at'];
     protected $hidden = ['deleted_at'];
+    public $timestamps = false;
 
     public function revision()
     {
@@ -26,5 +27,4 @@ class Posts extends Model
     {
         return $this->hasMany('App\Revisions', 'post_id');
     }
-
 }

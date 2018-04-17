@@ -35,10 +35,10 @@ $router->group(['prefix' => 'post', 'middleware' => 'auth'], function () use ($r
 });
 
 $router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
-$router->get('/posts[/{page:[0-9]+}/filter/{filter}/id/{id}]', 'PostController@listPosts');
+$router->get('/posts/{page:[0-9]+}[/filter/{filter}/{id}]', 'PostController@listPosts');
 $router->get('/post/{id:[0-9]+}/revisions', 'RevisionController@getRevisionsByPostId');
 $router->put('/post/{post_id:[0-9]+}/revision/{rev_id:[0-9]+}', 'RevisionController@rollbackRevision');
-$router->get('/posts/trashed/{id:[0-9]+}', 'PostController@listTrashedPosts');
+$router->get('/posts/trashed/{page:[0-9]+}', 'PostController@listTrashedPosts');
 $router->delete('/posts/trashed[/filter{filter}/id/{id}]', 'PostController@deleteTrashedPosts');
 
 $router->get('/categories', 'CategoryController@listCategories');

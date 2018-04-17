@@ -27,9 +27,16 @@ class PostController extends Controller
     public function listPosts(int $page=1, string $filter=null, int $id=null)
     {
         if ($filter == 'category')
-            $posts = Categories::find($id)->posts();
+            $posts = Categories::find($id)->posts()->skip(($page - 1) * 10)->take(10)->get();
         else
             $posts = Posts::skip(($page - 1) * 10)->take(10)->get();
+
+        foreach($posts as $post) {
+            $post->last_edit_by = $post->revision->author->name;
+            if ($post->category_id)
+                $post->category_name = $post->category->name;
+        }
+
         $resp = [
             'page' => $page,
             'filter_by' => $filter,
@@ -187,7 +194,7 @@ class PostController extends Controller
     public function listTrashedPosts(int $page)
     {
         $posts = Posts::onlyTrashed()->skip(($page - 1) * 10)->take(10)->get();
-        if (empty($posts))
+        if (!empty($posts))
             return response()->json(['page' => $page, 'posts' => $posts]);
         abort(404, 'Page Doesn\'t exist');
     }

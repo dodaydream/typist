@@ -11,7 +11,7 @@ class RevisionController extends Controller
     public function getRevisionsByPostId(int $post_id)
     {
         $post = Posts::find($post_id);
-        $revisions = $post->revisions;
+        $revisions = $post->revisions()->orderBy('id', 'desc')->get();
         foreach ($revisions as $revision)
         {
             $revision['user_name'] = Users::find($revision['user_id'])->name;
