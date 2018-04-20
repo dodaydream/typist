@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Posts;
 use App\Categories;
 use App\Revisions;
+use App\PostComments;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -20,7 +21,7 @@ class PostController extends Controller
 
     /**
      * Get paginated posts.
-     *
+     * 
      * @param int $page
      * @return json
      */
@@ -170,25 +171,6 @@ class PostController extends Controller
             $post->revisions()->delete();
             $post->forceDelete();
         });
-    }
-    // TODO
-    public function deleteTrashedPosts(string $filter='none', int $id=null)
-    {
-        if ($filter == 'none')
-        {
-            $posts = Posts::onlyTrashed()->forceDelete();
-            foreach ($posts as $post)
-                Self::deleteRevisions($post);
-            $status = "Posts all cleaned";
-        }
-        else if ($filter == 'category') // TODO
-        {
-        }
-        else {
-            abort(405, 'Illegal Parameter');
-        }
-
-        return response()->json(['status' => $status]);
     }
 
     public function listTrashedPosts(int $page)
