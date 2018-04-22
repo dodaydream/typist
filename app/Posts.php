@@ -11,7 +11,6 @@ class Posts extends Model
     protected $table = 'posts';
     protected $fillable = ['title', 'revision_id', 'category_id', 'updated_at'];
     protected $hidden = ['deleted_at', 'revision', 'category'];
-    public $timestamps = false;
 
     public function revision()
     {
