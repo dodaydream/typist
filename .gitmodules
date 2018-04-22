@@ -1,0 +1,3 @@
+[submodule "sql/mysql-workbench-export-laravel-5-migrations"]
+	path = sql/mysql-workbench-export-laravel-5-migrations
+	url = https://github.com/beckenrode/mysql-workbench-export-laravel-5-migrations.git

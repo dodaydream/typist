@@ -10,8 +10,6 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
-// remove this line when finished installation
-$router->get('install/', 'InstallController@install');
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     // User API
