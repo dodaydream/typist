@@ -50,6 +50,8 @@ class PostController extends Controller
                 $post->category_name = $post->category->name;
             else
                 $post->category_name = 'Uncatagorized';
+            if ($post->expand_content)
+                $post->content = $post->revision->content;
         }
 
         $resp = [
@@ -104,6 +106,7 @@ class PostController extends Controller
         ];
 
         return response()->json($resp);
+
         if (Posts::create($post))
             return response()->json(['created' => true]);
     }

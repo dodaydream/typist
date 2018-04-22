@@ -10,7 +10,7 @@ class Posts extends Model
     use SoftDeletes;
     protected $table = 'posts';
     protected $fillable = ['title', 'revision_id', 'category_id', 'updated_at'];
-    protected $hidden = ['deleted_at'];
+    protected $hidden = ['deleted_at', 'revision', 'category'];
     public $timestamps = false;
 
     public function revision()
@@ -26,5 +26,10 @@ class Posts extends Model
     public function revisions()
     {
         return $this->hasMany('App\Revisions', 'post_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Comments', 'post_id');
     }
 }

@@ -36,6 +36,9 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->post('/categories', 'CategoryController@createCategory');
     $router->put('/category/{id:[0-9]+}', 'CategoryController@updateCategory');
     $router->delete('/category/{id:[0-9]+}', 'CategoryController@deleteCategory');
+    // Comment API
+    $router->get('/comments/{page:[0-9]+}', 'CommentController@retriveComments');
+
 });
 
 
@@ -50,3 +53,8 @@ $router->get('/post/{id:[0-9]+}/revisions', 'RevisionController@getRevisionsByPo
 
 // Category API
 $router->get('/categories', 'CategoryController@listCategories');
+
+// Comment API
+$router->get('/comments/{page:[0-9]+}/post/{id}', 'CommentController@retriveComments');
+$router->post('/comments/post/{id:[0-9]+}', 'CommentController@createCommentByPostId');
+$router->delete('/comment/{id}', 'CommentController@deleteComment');
