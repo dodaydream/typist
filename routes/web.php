@@ -10,6 +10,8 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+// remove this line when finished installation
+$router->get('install/', 'InstallController@install');
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     // User API
@@ -34,8 +36,8 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
     // Category API
     $router->post('/categories', 'CategoryController@createCategory');
-    $router->put('/{id:[0-9]+}', 'CategoryController@updateCategory');
-    $router->delete('/{id:[0-9]+}', 'CategoryController@deleteCategory');
+    $router->put('/category/{id:[0-9]+}', 'CategoryController@updateCategory');
+    $router->delete('/category/{id:[0-9]+}', 'CategoryController@deleteCategory');
 });
 
 
