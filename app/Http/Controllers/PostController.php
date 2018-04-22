@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    const POST_PER_PAGE = 10;
     /**
      * Create a new controller instance.
      *
@@ -21,25 +22,39 @@ class PostController extends Controller
 
     /**
      * Get paginated posts.
-     * 
+     *
      * @param int $page
      * @return json
      */
     public function listPosts(int $page=1, string $filter=null, int $id=null)
     {
-        if ($filter == 'category')
-            $posts = Categories::find($id)->posts()->skip(($page - 1) * 10)->take(10)->get();
-        else
-            $posts = Posts::skip(($page - 1) * 10)->take(10)->get();
+        $offset = ($page - 1) * self::POST_PER_PAGE;
+        if ($filter == 'category') {
+            // uncategorized posts
+            if ($id == 0)
+                $posts = Posts::where('category_id', 0);
+            // categorized posts
+            else
+                $posts = Categories::find($id)->posts();
+            $count = $posts->count();
+            $posts = $posts->skip($offset)->take(self::POST_PER_PAGE)->get();
+        } else {
+            // all posts
+            $count = Posts::count();
+            $posts = Posts::skip($offset)->take(self::POST_PER_PAGE)->get();
+        }
 
         foreach($posts as $post) {
             $post->last_edit_by = $post->revision->author->name;
-            if ($post->category_id)
+            if ($post->category_id != 0)
                 $post->category_name = $post->category->name;
+            else
+                $post->category_name = 'Uncatagorized';
         }
 
         $resp = [
             'page' => $page,
+            'count' => $count,
             'filter_by' => $filter,
             'filter_id' => $id,
             'posts' => $posts
@@ -175,7 +190,17 @@ class PostController extends Controller
 
     public function listTrashedPosts(int $page)
     {
-        $posts = Posts::onlyTrashed()->skip(($page - 1) * 10)->take(10)->get();
+        $posts = Posts::onlyTrashed()
+            ->skip(($page - 1) * self::POST_PER_PAGE)->take(self::POST_PER_PAGE)->get();
+
+        foreach($posts as $post) {
+            $post->last_edit_by = $post->revision->author->name;
+            if ($post->category_id != 0)
+                $post->category_name = $post->category->name;
+            else
+                $post->category_name = 'Uncatagorized';
+        }
+
         if (!empty($posts))
             return response()->json(['page' => $page, 'posts' => $posts]);
         abort(404, 'Page Doesn\'t exist');

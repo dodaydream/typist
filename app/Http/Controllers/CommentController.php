@@ -23,20 +23,4 @@ class CommentController extends Controller
     public function deleteCommentsByPostId(int $id)
     {
     }
-
-    public function createCommentByFragmentId(int $id)
-    {
-    }
-
-    public function retriveCommentsByFragmentId(int $id, int $page)
-    {
-    }
-
-    public function deleteCommentByFragmentId(int $id)
-    {
-    }
-
-    public function deleteCommentsByFragmentId(int $id)
-    {
-    }
 }
