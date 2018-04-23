@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Posts;
 use App\Comments;
 use Illuminate\Http\Request;
+use GeoIp2\Database\Reader;
 
 class CommentController extends Controller
 {
@@ -45,10 +46,23 @@ class CommentController extends Controller
             $post = Posts::find($id);
             if ($post)
             {
+                $reader = new Reader('../database/GeoLite2-City.mmdb');
                 $comments = $post->comments();
                 $count = $comments->count();
                 $comments = $comments->orderBy('created_at', 'desc')
                              ->skip($offset)->take(10)->get();
+                foreach ($comments as $comment) {
+                    try {
+                        $record = $reader->city($comment->commenter_ip);
+                    } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+                    }
+
+                    if (isset($record)) {
+                        $comment->location = $record->city->name;
+                    } else {
+                        $comment->location = 'Unknown';
+                    }
+                }
             } else {
                 abort(404, 'Post not found');
             }
