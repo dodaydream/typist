@@ -3,10 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Users;
-<<<<<<< HEAD
 use Illuminate\Console\Command;
-=======
->>>>>>> e0e228597d20c0a3c8b68dce63b5e1ab4ca4d2fc
+use Illuminate\Support\Facades\Hash;
 
 class Install extends Command
 {
@@ -16,11 +14,7 @@ class Install extends Command
 
     public function handle()
     {
-<<<<<<< HEAD
         $email = $this->ask('email');
-=======
-        $email = $this->ask('email')
->>>>>>> e0e228597d20c0a3c8b68dce63b5e1ab4ca4d2fc
         $username = $this->ask('Username');
         $password = $this->secret('Password');
 
