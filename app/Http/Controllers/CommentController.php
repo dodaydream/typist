@@ -16,7 +16,7 @@ class CommentController extends Controller
 		} catch (\GeoIp2\Exception\AddressNotFoundException $e) {
 		}
 
-		return isset($record) ? ($record->city->name + ', ' + $record->country->name) : 'Unknown';
+		return isset($record) ? ($record->city->name.', '.$record->country->name) : 'Unknown';
 	}
 
     public function createCommentByPostId(int $id, Request $request)
