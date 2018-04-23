@@ -212,7 +212,7 @@ class PostController extends Controller
     public static function makePost(Posts $post)
     {
         if ($post) {
-            $post->category = $post->category_id ? $post->category->name : 'Uncategorized';
+            $post->category_name = $post->category_id ? $post->category->name : 'Uncategorized';
             $post->last_edit_by = $post->revision->author->name;
             $post->content = $post->revision->content;
             return $post;
