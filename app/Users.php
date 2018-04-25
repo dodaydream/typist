@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
+use App\Revisions;
+
 class Users extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
@@ -27,13 +29,13 @@ class Users extends Model implements AuthenticatableContract, AuthorizableContra
      * @var array
      */
     protected $hidden = [
-        'password',
+        'password', 'email'
     ];
 
 	public $timestamps = false;
-    public function posts()
-    {
-        return $this->hasMany('App\Posts', 'user_id', 'id');
-    }
 
+    public function revisions()
+    {
+        return $this->hasMany('App\Revisions', 'user_id', 'id');
+    }
 }

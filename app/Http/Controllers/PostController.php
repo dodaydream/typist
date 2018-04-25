@@ -46,6 +46,7 @@ class PostController extends Controller
 
         foreach($posts as $post) {
             $post->last_edit_by = $post->revision->author->name;
+            $post->user_id = $post->revision->user_id;
             if ($post->category_id != 0)
                 $post->category_name = $post->category->name;
             else

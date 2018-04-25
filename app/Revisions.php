@@ -10,6 +10,7 @@ class Revisions extends Model
     protected $fillable = ['title', 'content', 'user_id', 'post_id'];
     protected $hidden = ['author'];
     const UPDATED_AT = null;
+    protected $dates = [];
 
     public function author()
     {

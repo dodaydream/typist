@@ -45,7 +45,6 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 // User API
 $router->get('user/{id:[0-9]+}', 'UserController@retriveUser');
 $router->post('user/token', 'TokenController@createToken');
-
 // Post API
 $router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
 $router->get('/posts/{page:[0-9]+}[/filter/{filter}/{id}]', 'PostController@listPosts');
