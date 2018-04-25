@@ -17,6 +17,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->post('users/', 'UserController@createUser');
     $router->put('user/{id:[0-9]+}', 'UserController@updateUser');
     $router->delete('user/{id:[0-9]+}', 'UserController@deleteUser');
+    $router->put('user/token', 'TokenController@refreshToken');
 
     // Post API
     $router->post('posts/', 'PostController@createPost');
@@ -45,6 +46,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 // User API
 $router->get('user/{id:[0-9]+}', 'UserController@retriveUser');
 $router->post('user/token', 'TokenController@createToken');
+
 // Post API
 $router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
 $router->get('/posts/{page:[0-9]+}[/filter/{filter}/{id}]', 'PostController@listPosts');
