@@ -26,6 +26,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
     // Revision API
     $router->put('/post/{post_id:[0-9]+}/revision/{rev_id:[0-9]+}', 'RevisionController@rollbackRevision');
+    $router->delete('/post/{post_id:[0-9]+}/revision/{rev_id:[0-9]+}', 'RevisionController@deleteRevision');
 
     // Trashed Post API
     $router->get('/posts/trashed/{page:[0-9]+}', 'PostController@listTrashedPosts');

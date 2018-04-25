@@ -32,16 +32,16 @@ class PostController extends Controller
         if ($filter == 'category') {
             // uncategorized posts
             if ($id == 0)
-                $posts = Posts::where('category_id', 0);
+                $posts = Posts::where('category_id', 0)->orderBy('updated_at', 'desc');
             // categorized posts
             else
-                $posts = Categories::find($id)->posts();
+                $posts = Categories::find($id)->posts()->orderBy('updated_at', 'desc');
             $count = $posts->count();
             $posts = $posts->skip($offset)->take(self::POST_PER_PAGE)->get();
         } else {
             // all posts
             $count = Posts::count();
-            $posts = Posts::skip($offset)->take(self::POST_PER_PAGE)->get();
+            $posts = Posts::skip($offset)->orderBy('updated_at', 'desc')->take(self::POST_PER_PAGE)->get();
         }
 
         foreach($posts as $post) {
@@ -82,7 +82,8 @@ class PostController extends Controller
 
         $postData = [
             'title' => $post['title'],
-            'category_id' => $post['category_id']
+            'category_id' => $post['category_id'],
+            'expand_content' => $post['expand_content']
         ];
 
         $revisionData = [
@@ -136,6 +137,8 @@ class PostController extends Controller
                     $post->title = $req['title'];
                 if (isset($req['category_id']))
                     $post->category_id = $req['category_id'];
+                if (isset($req['expand_content']))
+                    $post->expand_content = $req['expand_content'];
                 $post->save();
             });
 

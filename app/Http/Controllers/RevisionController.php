@@ -13,7 +13,7 @@ class RevisionController extends Controller
         $post = Posts::find($post_id);
         if ($post)
         {
-            $revisions = $post->revisions()->select(['id', 'user_id', 'created_at'])->orderBy('id', 'desc')->get();
+            $revisions = $post->revisions()->select(['id', 'user_id', 'created_at'])->orderBy('created_at', 'desc')->get();
 
             if ($revisions)
             {
@@ -53,8 +53,10 @@ class RevisionController extends Controller
         if ($post) {
             $revision = $post->revisions->where('id', $rev_id)->first();
             if ($revision) {
+                $revision->created_at = time();
                 $post->revision_id = $revision->id;
                 $post->save();
+                $revision->save();
                 return response()->json(PostController::makePost($post));
             }
             abort(404, 'Revision not in this post');
@@ -66,14 +68,17 @@ class RevisionController extends Controller
     {
         $post = Posts::find($post_id);
         if ($post) {
-            $revisions = $post->revisions;
+            $revisions = $post->revisions();
+            // get revision
             $revision = $revisions->where('id', $rev_id)->first();
             if ($revision) {
-                $revision->delete();
-                if ($revision->id == $post->revision_id) {
-                    $revision_id = $revisions->orderBy('created_at', 'desc')->first()->id;
-                    $this->rollbackRevision($post_id, $revision_id);
+                // if is current revision
+                if ($revision->id != $post->revision_id) {
+                    $revision->delete();
+                    return response()->json(['msg' => 'deleted']);
                 }
+
+                abort(405, 'Cannot delete current active revision');
             }
             abort(404, 'Revision not in this post');
         }
