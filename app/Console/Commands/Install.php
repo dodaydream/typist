@@ -25,7 +25,7 @@ class Install extends Command
         ];
 
         Users::create($user);
-        
+
         echo 'completed';
     }
 }
