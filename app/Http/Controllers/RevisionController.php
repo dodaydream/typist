@@ -11,12 +11,40 @@ class RevisionController extends Controller
     public function getRevisionsByPostId(int $post_id)
     {
         $post = Posts::find($post_id);
-        $revisions = $post->revisions()->orderBy('id', 'desc')->get();
-        foreach ($revisions as $revision)
+        if ($post)
         {
-            $revision['user_name'] = Users::find($revision['user_id'])->name;
+            $revisions = $post->revisions()->select(['id', 'user_id', 'created_at'])->orderBy('id', 'desc')->get();
+
+            if ($revisions)
+            {
+                foreach ($revisions as $revision)
+                {
+                    $revision['user_name'] = $revision->author->name;
+                }
+
+                return response()->json($revisions);
+            }
+
+            return response()->json([]);
         }
-        return response()->json($revisions);
+
+        abort(404, 'Post not found');
+    }
+
+    public function getRevisionByPostId(int $post_id, int $rev_id)
+    {
+        $post = Posts::find($post_id);
+        if ($post)
+        {
+            $revision = $post->revisions()->where('id', $rev_id)->first();
+            if ($revision)
+            {
+                $revision['created_by'] = $revision->author->name;
+                return response()->json($revision);
+            }
+            abort(404, 'Revision not found');
+        }
+        abort(404, 'Post not found');
     }
 
     public function rollbackRevision(int $post_id, int $rev_id)
