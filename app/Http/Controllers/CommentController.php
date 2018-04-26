@@ -50,7 +50,7 @@ class CommentController extends Controller
         abort(404, 'Comment not found');
     }
 
-    public function retriveComments(int $page, int $id)
+    public function retriveCommentsByPostId(int $page, int $id)
     {
         $offset = ($page - 1) * 10;
         if ($id)
@@ -75,4 +75,13 @@ class CommentController extends Controller
 
         return response()->json(['count' => $count, 'comments' => $comments]);
     }
+
+
+	public function retriveComments(int $page)
+	{
+		$offset = ($page - 1) * 10;
+		$count = Comments::count();
+		$comments = Comments::skip($offset)->take(10)->get();
+        return response()->json(['count' => $count, 'comments' => $comments]);
+	}
 }

@@ -60,6 +60,6 @@ $router->get('/post/{id:[0-9]+}/revision/{revision_id}', 'RevisionController@get
 $router->get('/categories', 'CategoryController@listCategories');
 
 // Comment API
-$router->get('/comments/{page:[0-9]+}/post/{id}', 'CommentController@retriveComments');
+$router->get('/comments/{page:[0-9]+}/post/{id}', 'CommentController@retriveCommentsByPostId');
 $router->post('/comments/post/{id:[0-9]+}', 'CommentController@createCommentByPostId');
 $router->delete('/comment/{id}', 'CommentController@deleteComment');

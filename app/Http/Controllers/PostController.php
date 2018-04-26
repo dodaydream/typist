@@ -193,7 +193,7 @@ class PostController extends Controller
         abort(404, 'Post Not Found');
     }
 
-    public static function deleteRevisions(Post $post)
+    public static function deleteRevisions(Posts $post)
     {
         \DB::transaction(function () use ($post) {
             $post->revisions()->delete();
