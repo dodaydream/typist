@@ -38,6 +38,14 @@ class PostController extends Controller
                 $posts = Categories::find($id)->posts()->orderBy('updated_at', 'desc');
             $count = $posts->count();
             $posts = $posts->skip($offset)->take(self::POST_PER_PAGE)->get();
+        } else if ($filter == 'expand') {
+            // expanded posts
+            if ($id == 1)
+                $posts = Posts::where('expand_content', 1)->orderBy('updated_at', 'desc');
+            else
+                $posts = Posts::where('expand_content', 0)->orderBy('updated_at', 'desc');
+            $count = $posts->count();
+            $posts = $posts->take(self::POST_PER_PAGE)->get();
         } else {
             // all posts
             $count = Posts::count();
@@ -77,12 +85,12 @@ class PostController extends Controller
     public function createPost(Request $request)
     {
         $post = $request->all();
-        if (!isset($post['title']))
+        if (isset($post['expand_content']) && $post['expand_content'] == false && !isset($post['title']))
             abort(400, "Missing title");
 
         $postData = [
-            'title' => $post['title'],
-            'category_id' => $post['category_id'],
+            'title' => isset($post['title']) ? $post['title'] : '',
+            'category_id' => isset($post['cagtegory_id']) ? $post['category_id'] : 0,
             'expand_content' => $post['expand_content']
         ];
 
@@ -109,8 +117,6 @@ class PostController extends Controller
 
         return response()->json($resp);
 
-        if (Posts::create($post))
-            return response()->json(['created' => true]);
     }
 
     public function updatePost(Request $request, int $id)
