@@ -53,7 +53,6 @@ class RevisionController extends Controller
         if ($post) {
             $revision = $post->revisions->where('id', $rev_id)->first();
             if ($revision) {
-                $revision->created_at = time();
                 $post->revision_id = $revision->id;
                 $post->save();
                 $revision->save();
