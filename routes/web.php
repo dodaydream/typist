@@ -9,6 +9,7 @@
 | It is a breeze. Simply tell Lumen the URIs it should respond to
 | and give it the Closure to call when that URI is requested.
 |
+| TODO: Mistakenly spell retrieve as retrive
 */
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
@@ -41,6 +42,10 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     // Comment API
     $router->get('/comments/{page:[0-9]+}', 'CommentController@retriveComments');
 
+    // Attachment API
+    $router->post('/attachments', 'AttachmentController@createAttachment');
+    $router->put('/attachment/{id}', 'AttachmentController@updateAttachment');
+    $router->delete('/attachment/{id}', 'AttachmentController@deleteAttachment');
 });
 
 
@@ -63,3 +68,6 @@ $router->get('/categories', 'CategoryController@listCategories');
 $router->get('/comments/{page:[0-9]+}/post/{id}', 'CommentController@retriveCommentsByPostId');
 $router->post('/comments/post/{id:[0-9]+}', 'CommentController@createCommentByPostId');
 $router->delete('/comment/{id}', 'CommentController@deleteComment');
+
+// Attachment API
+$router->get('/attachment/{id}', 'AttachmentController@retrieveAttachment');
