@@ -24,12 +24,11 @@ class RSSController extends Controller
             $item = new Item();
             $item
             ->title($post->title)
-            ->description("")
+            ->description("No description available")
             ->url(getenv('FRONTEND_BASE_URL').'/post/'.$post->id)
             ->creator($post->revision->author->name)
             ->pubDate(strtotime($post->updated_at))
             ->category($post->category_id != 0 ? $post->category->name : 'Uncategorized')
-            ->content(Markdown::defaultTransform($post->revision->content))
             ->appendTo($channel);
         }
 
