@@ -71,3 +71,7 @@ $router->delete('/comment/{id}', 'CommentController@deleteComment');
 
 // Attachment API
 $router->get('/attachment/{id}', 'AttachmentController@retrieveAttachment');
+
+
+// RSS Feed
+$router->get('/rss', 'RSSController@retrieveRSS');
