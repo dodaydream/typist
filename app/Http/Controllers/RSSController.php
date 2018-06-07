@@ -23,7 +23,7 @@ class RSSController extends Controller
         foreach($posts as $post) {
             $item = new Item();
             $item
-            ->title($post->title)
+            ->title($post->title ? $post->title : "Untitled")
             ->description("No description available")
             ->url(getenv('FRONTEND_BASE_URL').'/post/'.$post->id)
             ->creator($post->revision->author->name)
