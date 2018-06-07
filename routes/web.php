@@ -74,4 +74,4 @@ $router->get('/attachment/{id}', 'AttachmentController@retrieveAttachment');
 
 
 // RSS Feed
-$router->get('/rss', 'RSSController@retrieveRSS');
+$router->get('/atom', 'ATOMController@retrieveATOM');
