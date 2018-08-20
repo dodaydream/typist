@@ -26,52 +26,81 @@ class PostController extends Controller
      * @param int $page
      * @return json
      */
-    public function listPosts(int $page=1, string $filter=null, int $id=null)
+    public function listPosts(Request $request, int $page=1)
     {
         $offset = ($page - 1) * self::POST_PER_PAGE;
-        if ($filter == 'category') {
-            // uncategorized posts
-            if ($id == 0)
-                $posts = Posts::where('category_id', 0)->orderBy('updated_at', 'desc');
-            // categorized posts
-            else
-                $posts = Categories::find($id)->posts()->orderBy('updated_at', 'desc');
-            $count = $posts->count();
-            $posts = $posts->skip($offset)->take(self::POST_PER_PAGE)->get();
-        } else if ($filter == 'expand') {
-            // expanded posts
-            if ($id == 1)
-                $posts = Posts::where('expand_content', 1)->orderBy('updated_at', 'desc');
-            else
-                $posts = Posts::where('expand_content', 0)->orderBy('updated_at', 'desc');
-            $count = $posts->count();
-            $posts = $posts->take(self::POST_PER_PAGE)->get();
-        } else {
+        $filter_flag = false;
+        $filter = [];
+
+        if (null !== $request->query('category'))
+        {
+            $id = filter_var($request->query('category'), FILTER_VALIDATE_INT);
+
+            if ($id == 0) {
+                // uncategorized posts
+                $posts = Posts::where('category_id', 0);
+            } else if ($category = Categories::find($id)) {
+                // categorized posts
+                $posts = $category->posts();
+            } else {
+                abort(404, 'Category not found');
+            }
+
+            $filter['category_id'] = $id;
+            $filter_flag = true;
+        }
+
+        if (null !== $request->query('expand'))
+        {
+            $expand_flag = filter_var($request->query('expand'), FILTER_VALIDATE_BOOLEAN);
+            if ($filter_flag) {
+                $posts = $posts->where('expand_content', $expand_flag);
+            } else {
+                $posts = Posts::where('expand_content', $expand_flag);
+                $filter_flag = true;
+            }
+
+            $filter['expanded_post'] = $expand_flag;
+        }
+
+        if ($filter_flag)
+        {
+            if ($posts) {
+                $count = $posts->count();
+                $posts = $posts->skip($offset)->orderBy('updated_at', 'desc')->take(self::POST_PER_PAGE)->get();
+            }
+        }
+        else
+        {
             // all posts
             $count = Posts::count();
             $posts = Posts::skip($offset)->orderBy('updated_at', 'desc')->take(self::POST_PER_PAGE)->get();
         }
 
-        foreach($posts as $post) {
-            $post->last_edit_by = $post->revision->author->name;
-            $post->user_id = $post->revision->user_id;
-            if ($post->category_id != 0)
-                $post->category_name = $post->category->name;
-            else
-                $post->category_name = 'Uncatagorized';
-            if ($post->expand_content)
-                $post->content = $post->revision->content;
+        if ($posts)
+        {
+            foreach ($posts as $post) {
+                $post->last_edit_by = $post->revision->author->name;
+                $post->user_id = $post->revision->user_id;
+                if ($post->category_id != 0)
+                    $post->category_name = $post->category->name;
+                else
+                    $post->category_name = 'Uncatagorized';
+                if ($post->expand_content)
+                    $post->content = $post->revision->content;
+            }
+
+            $resp = [
+                'page' => $page,
+                'count' => $count,
+                'filter' => $filter,
+                'posts' => $posts
+            ];
+
+            return response()->json($resp);
         }
 
-        $resp = [
-            'page' => $page,
-            'count' => $count,
-            'filter_by' => $filter,
-            'filter_id' => $id,
-            'posts' => $posts
-        ];
-
-        return response()->json($resp);
+        abort(404, 'Posts not fonud');
     }
 
     public function retrivePost(int $id)

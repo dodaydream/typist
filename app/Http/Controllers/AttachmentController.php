@@ -16,8 +16,8 @@ class AttachmentController extends Controller
         return response()->json(['file' => $file->getRealPath()]);
     }
 
-    public function retrieveAttachment(string $id)
+    public function retrieveAttachment(string $filename)
     {
-        return response()->download('../storage/attachments/'.$id);
+        return response()->download('../storage/attachments/'.$filename);
     }
 }

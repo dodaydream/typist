@@ -55,7 +55,7 @@ $router->post('user/token', 'TokenController@createToken');
 
 // Post API
 $router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
-$router->get('/posts/{page:[0-9]+}[/filter/{filter}/{id}]', 'PostController@listPosts');
+$router->get('/posts/{page:[0-9]+}', 'PostController@listPosts');
 
 // Revision API
 $router->get('/post/{id:[0-9]+}/revisions', 'RevisionController@getRevisionsByPostId');
@@ -70,7 +70,7 @@ $router->post('/comments/post/{id:[0-9]+}', 'CommentController@createCommentByPo
 $router->delete('/comment/{id}', 'CommentController@deleteComment');
 
 // Attachment API
-$router->get('/attachment/{id}', 'AttachmentController@retrieveAttachment');
+$router->get('/attachment/{filename}', 'AttachmentController@retrieveAttachment');
 
 
 // RSS Feed
