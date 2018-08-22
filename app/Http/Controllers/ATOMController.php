@@ -13,8 +13,8 @@ class ATOMController extends Controller
         $feed->setTitle("Stanley's Blog");
         $feed->setDescription("My heart will go on.");
         $feed->setLink(getenv('FRONTEND_BASE_URL'));
-        
-        $posts = Posts::skip(0)->orderBy('updated_at', 'desc')->take(10)->get();
+
+        $posts = Posts::skip(0)->orderBy('updated_at', 'desc')->take(5)->get();
         foreach($posts as $post) {
             $item = $feed->createNewItem();
             $item->setTitle($post->title ? $post->title : "Untitled");
