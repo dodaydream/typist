@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class RevisionController extends Controller
 {
+    /**
+     * GET revisions by post id
+     *
+     * @param $post_id
+     * @return json
+     *
+     */
     public function getRevisionsByPostId(int $post_id)
     {
         $post = Posts::find($post_id);
