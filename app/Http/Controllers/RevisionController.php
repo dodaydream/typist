@@ -15,6 +15,9 @@ class RevisionController extends Controller
         {
             $revisions = $post->revisions()->select(['id', 'user_id', 'created_at'])->orderBy('created_at', 'desc')->get();
 
+            $current_active_revision = $post->revision()->select(['id', 'user_id', 'created_at'])->first();
+            $current_active_revision['user_name'] = $current_active_revision->author->name;
+
             if ($revisions)
             {
                 foreach ($revisions as $revision)
@@ -22,10 +25,14 @@ class RevisionController extends Controller
                     $revision['user_name'] = $revision->author->name;
                 }
 
-                return response()->json($revisions);
+                return response()->json([
+                  'current_active_revision' => $current_active_revision,
+                  'revisions' => $revisions
+                ]);
             }
 
-            return response()->json([]);
+            abort(404, 'Revision not found');
+
         }
 
         abort(404, 'Post not found');
