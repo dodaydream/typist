@@ -54,7 +54,8 @@ $router->get('user/{id:[0-9]+}', 'UserController@retriveUser');
 $router->post('user/token', 'TokenController@createToken');
 
 // Post API
-$router->get('/post/{id:[0-9]+}', 'PostController@retrivePost');
+$router->get('/post/{id:[0-9]+}', 'PostController@retrievePost');
+$router->post('/post/{id:[0-9]+}', 'PostController@retrieveProtectedPost');
 $router->get('/posts/{page:[0-9]+}', 'PostController@listPosts');
 
 // Revision API

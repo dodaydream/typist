@@ -5,12 +5,12 @@ use App\Categories;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
-{
     /**
-     * Return an json containing all categories.
+     * @api {get} /categories List all categories
+     * @apiName GetCategories
+     * @apiGroup Categories
      *
-     * @Param void
-     * @return json
+     * @apiSuccess {json} List of categories
      */
     public function listCategories()
     {
@@ -20,35 +20,48 @@ class CategoryController extends Controller
     }
 
     /**
-     * Create a new category.
+     * @api {post} /categories Create a new category
+     * @apiName GetCategories
+     * @apiGroup Categories
      *
-     * @param category name
-     * @return json
+     * @apiSuccess {json} List of categories
      */
     public function createCategory(Request $request)
     {
-        $category = $request->all();
-        if (!isset($category['name']))
-            abort(400, 'Category name cannot be null');
-        if ($newCategory = Categories::create($category)) {
-            return response()->json($newCategory);
+        $this->validate($request, [
+            'name' => 'required|unique:categories'
+        ]);
+
+        try {
+            if ($newCategory = Categories::create($request->all())) {
+                return response()->json($newCategory);
+            }
+        } catch (Exception $e) {
+            return response()->json('Category not created');
         }
     }
 
     public function updateCategory(Request $request, int $id)
     {
+        $this->validate($request, [
+            'name' => 'required|unique:categories'
+        ]);
+
         $category = Categories::find($id);
+
         if ($category) {
-            $newCategory = $request->all();
-            if (!isset($newCategory['name']))
-                abort(400, 'Category name cannot be null');
-            $category->name = $newCategory['name'];
-            if ($category->save()) {
+
+            $category->name = $request->input('name');
+
+            try {
+                $category->save();
                 return response()->json($category);
+            } catch (Exception $e) {
+                abort(500, "The category can't be updated.");
             }
-            abort(500, "The category can't be updated.");
+        } else {
+            abort(404, 'Category not found.');
         }
-        abort(404, 'Category not found.');
     }
 
     // TODO

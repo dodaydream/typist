@@ -18,6 +18,11 @@ class Posts extends Model
         return $this->belongsTo('App\Revisions', 'revision_id');
     }
 
+    public function password()
+    {
+        return $this->hasOne('App\PostsPassword', 'post_id');
+    }
+
     public function category()
     {
         return $this->belongsTo('App\Categories');
