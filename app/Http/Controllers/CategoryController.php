@@ -5,6 +5,7 @@ use App\Categories;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
+{
     /**
      * @api {get} /categories List all categories
      * @apiName GetCategories

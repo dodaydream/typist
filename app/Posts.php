@@ -9,7 +9,7 @@ class Posts extends Model
 {
     use SoftDeletes;
     protected $table = 'posts';
-    protected $fillable = ['title', 'revision_id', 'category_id', 'expand_content'];
+    protected $fillable = ['title', 'revision_id', 'category_id', 'expand_content', 'password_protected'];
     protected $hidden = ['deleted_at', 'revision', 'category'];
     protected $dates = [];
 

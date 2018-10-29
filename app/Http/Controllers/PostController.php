@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Posts;
 use App\Categories;
 use App\Revisions;
 use App\PostComments;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class PostController extends Controller
 {
@@ -88,6 +91,9 @@ class PostController extends Controller
                     $post->category_name = 'Uncatagorized';
                 if ($post->expand_content)
                     $post->content = $post->revision->content;
+
+                if ($post->password_protected)
+                    $post->content = "This post is password protected";
             }
 
             $resp = [
@@ -106,8 +112,12 @@ class PostController extends Controller
     public function retrievePost(int $id)
     {
         $post = Posts::find($id);
+        if ($post->password_protected)
+            abort(401, 'You don\'t have the permission for this post');
+
         if ($post && $post = Self::makePost($post))
             return response()->json($post);
+
         abort(404, 'Post Not Found');
     }
 
@@ -131,7 +141,7 @@ class PostController extends Controller
         if (isset($post['expand_content']) && $post['expand_content'] == false && !isset($post['title']))
             abort(400, "Missing title");
 
-        $hasPassword = $request->has('password') ? $request->input('password') : false;
+        $hasPassword = $request->has('password') ? true : false;
 
         $postData = [
             'title' => $request->has('title') ? $post['title'] : '',
@@ -141,17 +151,17 @@ class PostController extends Controller
         ];
 
         $revisionData = [
-            'content' => $post['content'],
+            'content' => $request->input('content'),
             'user_id' => $request->user()
         ];
 
         if ($hasPassword) {
             $passwordData = [
-                'password' => $request->input('password');
+                'password' => Hash::make($request->input('password'))
             ];
         }
 
-        \DB::transaction(function () use (&$post, &$postData, &$revisionData) {
+        \DB::transaction(function () use (&$post, &$postData, &$revisionData, &$passwordData, &$hasPassword) {
             $post = Posts::create($postData);
             $revision = $post->revisions()->create($revisionData);
             if ($hasPassword) {
@@ -162,18 +172,17 @@ class PostController extends Controller
         });
 
         $resp = [
-            'id' => $post['id'],
-            'category_id' => $post['category_id'],
+            'id' => $post->id,
+            'category_id' => $post->category_id,
             'title' => $post['title'],
             'user_id' => $revisionData['user_id'],
             'revision_id' => $post['revision_id'],
-            'content' => $post['content'],
+            'content' => $post->revision->content,
             'expand_content' => $post['expand_content'],
-            'password_protected' => $post['password_protected']
+            'password_protected' => $hasPassword
         ];
 
         return response()->json($resp);
-
     }
 
     public function updatePost(Request $request, int $id)

@@ -3,21 +3,35 @@
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Posts;
+use App\Categories;
 
 class CategoryTest extends TestCase
 {
+
+    private $headers;
     /**
      * @group category
      * Test create category
      */
+    public function __construct() {
+        parent::__construct();
+        $this->headers = [
+            'Authorization' => 'Bearer ' + getenv('TEST_JWT_CREDENTIAL')
+        ];
+    }
+
     public function testCreateCategory()
     {
         $data = [
-            'name' => 'Test',
-            'description' => 'A sample Category'
+            'name' => 'Test'
         ];
-        $this->json('POST', 'admin/category', ['data' => json_encode($data)])
-             ->seeJson(['created' => true]);
+
+        $expect = [
+            'created' => 'true'
+        ];
+
+        $response = $this->json('POST', '/categories', $data, $this->headers);
+        $response->assertJson(json_encode($expect));
     }
 
     /**
@@ -27,7 +41,7 @@ class CategoryTest extends TestCase
     public function testGetCategories()
     {
         $this->json('GET', '/categories')
-             ->seeJson(['id' => 1]);
+             ->assertJson(Categories::all()->toJson());
     }
 
     /**
@@ -37,8 +51,9 @@ class CategoryTest extends TestCase
     public function testUpdateCategory()
     {
         $data = ['name' => 'TestModified', 'description' => 'Lorem Ipsum'];
-        $this->json('PUT', 'admin/category/1', ['data' => json_encode($data)])
-        ->seeJson(['updated' => true]);
+        $expect = ['updated' => true];
+        $this->json('PUT', '/category/1', $data, $this->headers)
+        ->assertJson(json_encode($expect));
     }
 
     /**
@@ -47,8 +62,9 @@ class CategoryTest extends TestCase
      */
     public function testDeleteCategory()
     {
-        $this->json('DELETE', 'admin/category/1')
-             ->seeJson(['deleted' => true]);
+        $expect = ['deleted' => true];
+        $this->json('DELETE', '/category/1', [], $this->headers)
+             ->assertJson(json_encode($expect));
     }
 
 }

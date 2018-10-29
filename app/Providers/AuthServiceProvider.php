@@ -31,7 +31,7 @@ class AuthServiceProvider extends ServiceProvider
         // the User instance via an API token or any other method necessary.
         $this->app['auth']->viaRequest('api', function ($request) {
             if ($request->header('Authorization')) {
-                $key = substr($request->header('Authorization'), 4);
+                $key = substr($request->header('Authorization'), 7);
                 try {
                     $user = JWT::decode($key, getenv('JWT_SECRET'), ['HS256']);
                 } catch (\Firebase\JWT\ExpiredException $e) {
